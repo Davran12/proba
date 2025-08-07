@@ -1,0 +1,18 @@
+.footer {
+  height: 100px;
+  padding: 20px;
+  background-color: rgb(195, 33, 33);
+  nav {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    .link {
+      color: white !important;
+      text-decoration: none;
+    }
+    .active {
+      text-decoration: underline;
+      color: white !important;
+    }
+  }
+}
