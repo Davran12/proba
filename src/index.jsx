@@ -1,5 +1,5 @@
 import {createRoot} from "react-dom/client"
-import App from "./react-router-dom/App"
+import {App} from "./useReducer/App"
 
 const root = document.getElementById("root")
 

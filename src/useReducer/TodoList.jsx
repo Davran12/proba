@@ -1,25 +1,45 @@
 import {useReducer, useState} from "react"
 import styles from "./TodoList.module.scss"
 
-const init = []
-
 function reducer(state, action) {
   switch (action.type) {
     case "add":
-      return [...state, {id: Date.now(), text: action.text, done: false}]
+      return {
+        ...state,
+        todos: [
+          ...state.todos,
+          {id: Date.now(), text: action.text, done: false},
+        ],
+      }
     case "remove":
-      return state.filter((item) => item.id !== action.id)
+      return {
+        ...state,
+        todos: state.todos.filter((item) => item.id !== action.id),
+      }
     case "toggle":
-      return state.map((item) =>
-        item.id === action.id ? {...item, done: !item.done} : item
-      )
+      return {
+        ...state,
+        todos: state.todos.map((item) =>
+          item.id === action.id ? {...item, done: !item.done} : item
+        ),
+      }
+    case "setFilter":
+      return {
+        ...state,
+        filter: action.filter,
+      }
     default:
       return state
   }
 }
 
-export function TodoList() {
-  const [state, dispatch] = useReducer(reducer, init)
+export function TodoList({initialValues = {filter: "all"}}) {
+  const initialState = {
+    todos: [],
+    filter: initialValues.filter || "all",
+  }
+
+  const [state, dispatch] = useReducer(reducer, initialState)
   const [text, setText] = useState("")
 
   const addTodo = () => {
@@ -29,9 +49,30 @@ export function TodoList() {
     }
   }
 
+  const filteredTodos = state.todos.filter((todo) => {
+    if (state.filter === "active") return !todo.done
+    if (state.filter === "completed") return todo.done
+    return true
+  })
+
   return (
     <div className={styles.todoWrapper}>
       <h2>Список задач</h2>
+
+      <div className={styles.filter}>
+        <button onClick={() => dispatch({type: "setFilter", filter: "all"})}>
+          Все
+        </button>
+        <button onClick={() => dispatch({type: "setFilter", filter: "active"})}>
+          Активные
+        </button>
+        <button
+          onClick={() => dispatch({type: "setFilter", filter: "completed"})}
+        >
+          Выполненные
+        </button>
+      </div>
+
       <div className={styles.todoForm}>
         <input
           value={text}
@@ -40,8 +81,9 @@ export function TodoList() {
         />
         <button onClick={addTodo}>Добавить</button>
       </div>
+
       <ul className={styles.todoList}>
-        {state.map((todo) => (
+        {filteredTodos.map((todo) => (
           <li
             className={todo.done ? styles.done : ""}
             onClick={() => dispatch({type: "toggle", id: todo.id})}
